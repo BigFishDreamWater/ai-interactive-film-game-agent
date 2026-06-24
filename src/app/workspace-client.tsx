@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import type { CharacterCard, GameDesignSpec, Project, StoryGraph } from "@/domain/types";
+import type { AssetItem, CharacterCard, GameDesignSpec, Project, StoryGraph } from "@/domain/types";
+import { PreviewPlayer } from "@/app/preview-player";
 
 interface WorkspaceSnapshot {
   project?: Project;
   design?: GameDesignSpec;
   characters: CharacterCard[];
   storyGraph?: StoryGraph;
+  assets: AssetItem[];
 }
 
 const initialSnapshot: WorkspaceSnapshot = {
-  characters: []
+  characters: [],
+  assets: []
 };
 
 /**
@@ -36,7 +39,7 @@ export function WorkspaceClient() {
     });
     const data = (await response.json()) as { project: Project };
 
-    setSnapshot({ project: data.project, characters: [] });
+    setSnapshot({ project: data.project, characters: [], assets: [] });
     setMessage("项目已创建，可以生成设计规格。");
   }
 
@@ -55,6 +58,23 @@ export function WorkspaceClient() {
 
     setSnapshot((current) => ({ ...current, [key]: value }));
     setMessage("生成完成。");
+  }
+
+  /**
+   * Runs an asset action endpoint and updates the local asset manifest.
+   */
+  async function updateAsset(assetId: string, action: "accept" | "cancel") {
+    if (!snapshot.project) {
+      return;
+    }
+
+    const response = await fetch(`/api/projects/${snapshot.project.id}/assets/${assetId}/${action}`, { method: "POST" });
+    const data = (await response.json()) as { asset: AssetItem };
+
+    setSnapshot((current) => ({
+      ...current,
+      assets: current.assets.map((asset) => (asset.assetId === assetId ? data.asset : asset))
+    }));
   }
 
   return (
@@ -95,8 +115,29 @@ export function WorkspaceClient() {
           <button type="button" onClick={() => runGeneration<StoryGraph>("generate/story", "storyGraph")}>
             Generate Story Graph
           </button>
+          <button type="button" onClick={() => runGeneration<AssetItem[]>("generate/assets", "assets")}>
+            Generate Assets
+          </button>
         </div>
-        <pre className="json-preview">{JSON.stringify(snapshot, null, 2)}</pre>
+        <div className="asset-list">
+          {snapshot.assets.map((asset) => (
+            <article className="asset-card" key={asset.assetId}>
+              <strong>{asset.title}</strong>
+              <span>{asset.type}</span>
+              <span>{asset.status}</span>
+              <small>{asset.source.license}</small>
+              <div className="button-row">
+                <button type="button" onClick={() => updateAsset(asset.assetId, "accept")}>
+                  Accept
+                </button>
+                <button type="button" onClick={() => updateAsset(asset.assetId, "cancel")}>
+                  Cancel
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+        <PreviewPlayer assets={snapshot.assets} characters={snapshot.characters} storyGraph={snapshot.storyGraph} />
       </section>
     </div>
   );

@@ -136,6 +136,104 @@ button:hover {
   padding: 14px;
 }
 
+.asset-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.asset-card {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.preview-player {
+  display: grid;
+  gap: 12px;
+}
+
+.preview-empty {
+  border: 1px dashed #a8b3c2;
+  border-radius: 8px;
+  color: #526171;
+  padding: 24px;
+}
+
+.preview-stage {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #1f2937;
+}
+
+.preview-background {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #334155, #111827);
+  color: #dbeafe;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.preview-characters {
+  position: absolute;
+  inset: auto 0 94px;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+.preview-sprite {
+  display: grid;
+  width: 120px;
+  height: 190px;
+  place-items: center;
+  border: 2px solid #dbeafe;
+  border-radius: 12px 12px 4px 4px;
+  background: rgba(255, 255, 255, 0.76);
+  color: #17212f;
+  font-weight: 800;
+}
+
+.preview-textbox {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  left: 18px;
+  max-height: 132px;
+  overflow: auto;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #17212f;
+  padding: 14px;
+}
+
+.preview-textbox p {
+  margin: 8px 0 0;
+}
+
+.choice-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.variables-preview {
+  border-radius: 6px;
+  background: #eef2f7;
+  color: #1f2937;
+  font-size: 12px;
+  padding: 10px;
+}
+
 @media (max-width: 720px) {
   .workspace-shell {
     padding: 28px;
