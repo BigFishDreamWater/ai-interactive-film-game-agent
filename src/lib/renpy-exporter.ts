@@ -1,4 +1,6 @@
 import type { AssetItem, CharacterCard, Project, StoryGraph, StoryNode } from "@/domain/types";
+import { readFileSync } from "node:fs";
+import { basename } from "node:path";
 
 export interface RenPyExportInput {
   project: Project;
@@ -10,6 +12,11 @@ export interface RenPyExportInput {
 export interface RenPyProjectFile {
   path: string;
   content: string;
+}
+
+export interface RenPyProjectImageFile {
+  path: string;
+  content: Buffer;
 }
 
 /**
@@ -28,17 +35,35 @@ export function buildRenPyProjectFiles(input: RenPyExportInput): RenPyProjectFil
 }
 
 /**
+ * Copies accepted public assets into the Ren'Py project image tree.
+ */
+export function buildRenPyProjectImageFiles(assets: AssetItem[]): RenPyProjectImageFile[] {
+  return assets
+    .filter((asset) => asset.status === "accepted")
+    .map((asset) => ({
+      path: `game/${renpyAssetRelativePath(asset)}`,
+      content: readFileSync(`public/${asset.filePath}`)
+    }));
+}
+
+/**
  * Renders Ren'Py Character definitions for every story character.
  */
 function renderCharacters(characters: CharacterCard[]): string {
-  return characters.map((character) => `define ${renpyVar(character.id)} = Character("${character.name}")`).join("\n");
+  const definitions = ['define p = Character("Player")'];
+
+  characters.forEach((character) => {
+    definitions.push(`define ${renpyVar(character.id)} = Character("${character.name}")`);
+  });
+
+  return definitions.join("\n");
 }
 
 /**
  * Renders Ren'Py image declarations for accepted background, sprite, expression, and UI assets.
  */
 function renderImages(assets: AssetItem[]): string {
-  return assets.map((asset) => `image ${renpyImageName(asset)} = "${asset.filePath}"`).join("\n");
+  return assets.map((asset) => `image ${renpyImageName(asset)} = "${renpyImageReferencePath(asset)}"`).join("\n");
 }
 
 /**
@@ -48,7 +73,14 @@ function renderScript(storyGraph: StoryGraph, characters: CharacterCard[]): stri
   const characterIds = new Set(characters.map((character) => character.id));
   const nodes = storyGraph.nodes.map((node) => renderNode(node, storyGraph.startNodeId, characterIds));
 
-  return nodes.join("\n\n");
+  return [...renderDefaults(storyGraph), "", ...nodes].join("\n\n");
+}
+
+/**
+ * Renders Ren'Py default statements for story variables.
+ */
+function renderDefaults(storyGraph: StoryGraph): string[] {
+  return storyGraph.variables.map((variable) => `default ${variable.name} = ${renderRenpyLiteral(variable.default)}`);
 }
 
 /**
@@ -63,7 +95,7 @@ function renderNode(node: StoryNode, startNodeId: string, characterIds: Set<stri
 
   node.characters.forEach((characterId) => {
     if (characterIds.has(characterId)) {
-      lines.push(`    show ${characterSpriteName(characterId)} at center`);
+      lines.push(`    show ${characterSpriteName(characterId)} neutral at center`);
     }
   });
 
@@ -137,6 +169,28 @@ function renpyImageName(asset: AssetItem): string {
 }
 
 /**
+ * Converts one accepted asset into a relative Ren'Py project image path.
+ */
+function renpyAssetRelativePath(asset: AssetItem): string {
+  if (asset.type === "background") {
+    return `images/backgrounds/${basename(asset.filePath)}`;
+  }
+
+  if (asset.type === "character_sprite" || asset.type === "expression") {
+    return `images/characters/${basename(asset.filePath)}`;
+  }
+
+  return `images/ui/${basename(asset.filePath)}`;
+}
+
+/**
+ * Converts one accepted asset into the image reference used inside Ren'Py scripts.
+ */
+function renpyImageReferencePath(asset: AssetItem): string {
+  return renpyAssetRelativePath(asset).replaceAll("\\", "/");
+}
+
+/**
  * Converts a background asset id into a Ren'Py background image name.
  */
 function backgroundImageName(assetId: string): string {
@@ -158,10 +212,25 @@ function escapeRenpyText(text: string): string {
 }
 
 /**
+ * Renders a JavaScript value as a Python-style Ren'Py literal.
+ */
+function renderRenpyLiteral(value: number | boolean | string): string {
+  if (typeof value === "boolean") {
+    return value ? "True" : "False";
+  }
+
+  if (typeof value === "string") {
+    return `"${escapeRenpyText(value)}"`;
+  }
+
+  return String(value);
+}
+
+/**
  * Renders a Ren'Py assignment expression for a choice effect.
  */
 function renderEffectExpression(variable: string, op: string, value: number | boolean | string): string {
-  const renderedValue = typeof value === "string" ? `"${escapeRenpyText(value)}"` : String(value);
+  const renderedValue = renderRenpyLiteral(value);
 
   if (op === "+=") {
     return `${variable} + ${renderedValue}`;

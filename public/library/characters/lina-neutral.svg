@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 768" role="img" aria-label="Lina neutral sprite">
+  <rect width="512" height="768" fill="none"/>
+  <ellipse cx="256" cy="718" rx="150" ry="24" fill="#000" opacity=".2"/>
+  <path d="M156 725c18-190 18-310 100-310s82 120 100 310z" fill="#2f4158"/>
+  <path d="M166 512c20-74 63-116 90-116s70 42 90 116l-42 178h-96z" fill="#394d66"/>
+  <circle cx="256" cy="265" r="98" fill="#f0c7ad"/>
+  <path d="M162 270c10-100 62-156 130-145 62 10 84 72 64 160-48-22-112-36-194-15z" fill="#222936"/>
+  <path d="M205 285h28M280 285h28" stroke="#1f2937" stroke-width="10" stroke-linecap="round"/>
+  <path d="M224 334c26 18 53 18 78 0" stroke="#8c4f4d" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M122 470c54-30 89-52 134-52s80 22 134 52l-56 70H178z" fill="#1f2937"/>
+</svg>

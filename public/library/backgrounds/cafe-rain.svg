@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Rainy cafe background">
+  <rect width="1280" height="720" fill="#172033"/>
+  <rect x="0" y="420" width="1280" height="300" fill="#2f2630"/>
+  <rect x="120" y="110" width="1040" height="430" rx="12" fill="#27384b"/>
+  <rect x="170" y="155" width="270" height="290" rx="8" fill="#10202d"/>
+  <rect x="505" y="155" width="270" height="290" rx="8" fill="#10202d"/>
+  <rect x="840" y="155" width="270" height="290" rx="8" fill="#10202d"/>
+  <path d="M140 540h1000" stroke="#d6a94f" stroke-width="10"/>
+  <circle cx="330" cy="245" r="42" fill="#f4c95d" opacity=".8"/>
+  <circle cx="640" cy="245" r="42" fill="#f4c95d" opacity=".7"/>
+  <circle cx="950" cy="245" r="42" fill="#f4c95d" opacity=".75"/>
+  <g stroke="#8eb7d8" stroke-width="4" opacity=".55">
+    <path d="M80 0 20 190"/>
+    <path d="M210 0 150 220"/>
+    <path d="M360 0 290 260"/>
+    <path d="M520 0 460 210"/>
+    <path d="M700 0 630 250"/>
+    <path d="M890 0 830 215"/>
+    <path d="M1070 0 1000 245"/>
+    <path d="M1230 0 1170 210"/>
+  </g>
+  <text x="640" y="625" text-anchor="middle" fill="#f4e6c8" font-family="serif" font-size="48">Rain Cafe</text>
+</svg>

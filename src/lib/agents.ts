@@ -41,7 +41,7 @@ export function generateCharacterCards(project: Project, design: GameDesignSpec)
       privateMotivation: "他害怕卷入案件，却知道受害者最后坐过的位置。",
       speechStyle: "口语化、紧张时会重复关键词。",
       requiredExpressions: ["neutral", "nervous"],
-      defaultAssetId: "char_lina_neutral"
+      defaultAssetId: "char_moss_neutral"
     },
     {
       id: "char_iris",
@@ -52,7 +52,7 @@ export function generateCharacterCards(project: Project, design: GameDesignSpec)
       privateMotivation: "她希望报道抢先发布，但不想让玩家冒险。",
       speechStyle: "直接、节奏快、带职业压力。",
       requiredExpressions: ["neutral", "concerned"],
-      defaultAssetId: "char_lina_neutral"
+      defaultAssetId: "char_iris_neutral"
     }
   ];
 

@@ -1,5 +1,5 @@
 import type { AssetItem, CharacterCard, StoryGraph } from "@/domain/types";
-import { findLibraryAsset } from "@/lib/asset-library";
+import { findLibraryAsset, listLibraryAssets } from "@/lib/asset-library";
 
 /**
  * Builds an accepted MVP asset manifest from story scene backgrounds and character sprites.
@@ -46,4 +46,11 @@ export function replaceAssetFromLibrary(currentAsset: AssetItem, libraryAssetId:
     tags: replacement.tags,
     status: "accepted"
   };
+}
+
+/**
+ * Picks a same-type built-in library asset that can replace a cancelled or missing asset.
+ */
+export function suggestReplacementLibraryAssetId(currentAsset: AssetItem): string | undefined {
+  return listLibraryAssets(currentAsset.type).find((asset) => asset.assetId !== currentAsset.assetId)?.assetId;
 }

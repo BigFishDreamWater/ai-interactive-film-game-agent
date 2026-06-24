@@ -65,12 +65,16 @@ export function WorkspaceClient() {
   /**
    * Runs an asset action endpoint and updates the local asset manifest.
    */
-  async function updateAsset(assetId: string, action: "accept" | "cancel") {
+  async function updateAsset(assetId: string, action: "accept" | "cancel" | "replace") {
     if (!snapshot.project) {
       return;
     }
 
-    const response = await fetch(`/api/projects/${snapshot.project.id}/assets/${assetId}/${action}`, { method: "POST" });
+    const requestInit: RequestInit =
+      action === "replace"
+        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }
+        : { method: "POST" };
+    const response = await fetch(`/api/projects/${snapshot.project.id}/assets/${assetId}/${action}`, requestInit);
     const data = (await response.json()) as { asset: AssetItem };
 
     setSnapshot((current) => ({
@@ -182,6 +186,9 @@ export function WorkspaceClient() {
                 </button>
                 <button type="button" onClick={() => updateAsset(asset.assetId, "cancel")}>
                   Cancel
+                </button>
+                <button type="button" onClick={() => updateAsset(asset.assetId, "replace")}>
+                  Replace
                 </button>
               </div>
             </article>

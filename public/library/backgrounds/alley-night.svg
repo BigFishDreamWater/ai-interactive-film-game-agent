@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Night alley background">
+  <rect width="1280" height="720" fill="#101820"/>
+  <polygon points="0,720 320,120 470,120 260,720" fill="#24313d"/>
+  <polygon points="1280,720 950,100 790,100 1010,720" fill="#2b2734"/>
+  <polygon points="410,720 530,250 750,250 870,720" fill="#182331"/>
+  <rect x="548" y="280" width="184" height="340" fill="#0f151d"/>
+  <circle cx="640" cy="210" r="46" fill="#e8c56c"/>
+  <path d="M640 250 640 720" stroke="#e8c56c" stroke-width="8" opacity=".35"/>
+  <g fill="#6b7d8f" opacity=".6">
+    <rect x="120" y="260" width="120" height="18"/>
+    <rect x="1020" y="245" width="150" height="18"/>
+    <rect x="70" y="410" width="170" height="18"/>
+  </g>
+  <path d="M390 620c170-50 330-50 500 0" stroke="#56677a" stroke-width="10" fill="none"/>
+</svg>

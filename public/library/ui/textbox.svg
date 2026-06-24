@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 260" role="img" aria-label="Default visual novel textbox">
+  <rect x="30" y="26" width="1220" height="208" rx="22" fill="#121826" opacity=".88"/>
+  <rect x="52" y="46" width="1176" height="168" rx="18" fill="none" stroke="#d6a94f" stroke-width="6"/>
+  <circle cx="100" cy="88" r="12" fill="#f4c95d"/>
+  <circle cx="1180" cy="172" r="12" fill="#f4c95d"/>
+</svg>

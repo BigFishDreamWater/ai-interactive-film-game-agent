@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { suggestReplacementLibraryAssetId } from "@/lib/asset-planner";
 import {
   acceptProjectAsset,
   cancelProjectAsset,
@@ -54,5 +55,43 @@ describe("asset planner and asset actions", () => {
     expect(cancelled.status).toBe("cancelled");
     expect(replaced.filePath).toBe("library/backgrounds/library-evening.svg");
     expect(accepted.status).toBe("accepted");
+  });
+
+  it("replaces a project asset with an automatic same-type suggestion", () => {
+    const project = createProject({
+      title: "雨夜咖啡馆",
+      genre: "mystery",
+      style: "noir",
+      brief: "玩家调查雨夜咖啡馆案件。"
+    });
+
+    generateProjectDesign(project.id);
+    generateProjectCharacters(project.id);
+    generateProjectStory(project.id);
+    generateProjectAssets(project.id);
+
+    const replaced = replaceProjectAsset(project.id, "bg_cafe_rain");
+
+    expect(replaced.assetId).toBe("bg_cafe_rain");
+    expect(replaced.filePath).toBe("library/backgrounds/alley-night.svg");
+    expect(replaced.status).toBe("accepted");
+  });
+
+  it("suggests a same-type library replacement for asset board retries", () => {
+    const project = createProject({
+      title: "雨夜咖啡馆",
+      genre: "mystery",
+      style: "noir",
+      brief: "玩家调查雨夜咖啡馆案件。"
+    });
+
+    generateProjectDesign(project.id);
+    generateProjectCharacters(project.id);
+    generateProjectStory(project.id);
+    const assets = generateProjectAssets(project.id);
+    const current = assets.find((asset) => asset.assetId === "bg_cafe_rain");
+
+    expect(current).toBeDefined();
+    expect(current ? suggestReplacementLibraryAssetId(current) : undefined).toBe("bg_alley_night");
   });
 });

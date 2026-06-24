@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Evening library background">
+  <rect width="1280" height="720" fill="#2c2330"/>
+  <rect x="90" y="95" width="250" height="520" fill="#4b3040"/>
+  <rect x="370" y="95" width="250" height="520" fill="#503547"/>
+  <rect x="660" y="95" width="250" height="520" fill="#4b3040"/>
+  <rect x="940" y="95" width="250" height="520" fill="#503547"/>
+  <g fill="#c99b5c">
+    <rect x="115" y="135" width="200" height="20"/>
+    <rect x="115" y="230" width="200" height="20"/>
+    <rect x="115" y="325" width="200" height="20"/>
+    <rect x="395" y="135" width="200" height="20"/>
+    <rect x="395" y="230" width="200" height="20"/>
+    <rect x="685" y="135" width="200" height="20"/>
+    <rect x="685" y="325" width="200" height="20"/>
+    <rect x="965" y="230" width="200" height="20"/>
+    <rect x="965" y="420" width="200" height="20"/>
+  </g>
+  <rect x="440" y="540" width="400" height="85" rx="12" fill="#2a1d22"/>
+  <circle cx="640" cy="250" r="62" fill="#f4c775" opacity=".75"/>
+  <path d="M120 660h1040" stroke="#1f171d" stroke-width="26"/>
+</svg>

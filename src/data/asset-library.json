@@ -94,6 +94,46 @@
     "expression": "suspicious"
   },
   {
+    "assetId": "char_moss_neutral",
+    "type": "character_sprite",
+    "status": "suggested",
+    "title": "Moss Neutral",
+    "filePath": "library/characters/moss-neutral.svg",
+    "previewUrl": "/library/characters/moss-neutral.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["barista", "neutral", "mystery"],
+    "characterId": "char_moss",
+    "expression": "neutral"
+  },
+  {
+    "assetId": "char_iris_neutral",
+    "type": "character_sprite",
+    "status": "suggested",
+    "title": "Iris Neutral",
+    "filePath": "library/characters/iris-neutral.svg",
+    "previewUrl": "/library/characters/iris-neutral.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["editor", "neutral", "mystery"],
+    "characterId": "char_iris",
+    "expression": "neutral"
+  },
+  {
     "assetId": "ui_textbox_default",
     "type": "ui",
     "status": "suggested",

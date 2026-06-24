@@ -11,7 +11,7 @@ interface AssetReplaceRouteContext {
 export async function POST(request: Request, context: AssetReplaceRouteContext) {
   const { projectId, assetId } = await context.params;
   const body = await request.json();
-  const asset = replaceProjectAsset(projectId, assetId, String(body.libraryAssetId ?? ""));
+  const asset = replaceProjectAsset(projectId, assetId, body.libraryAssetId ? String(body.libraryAssetId) : undefined);
 
   return NextResponse.json({ asset });
 }

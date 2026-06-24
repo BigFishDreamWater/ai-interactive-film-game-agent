@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { AssetItem, CharacterCard, StoryGraph } from "@/domain/types";
 import { applyChoice, createPreviewState, getCurrentNode } from "@/lib/preview-runtime";
@@ -39,13 +40,38 @@ export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerP
   return (
     <div className="preview-player">
       <div className="preview-stage">
-        <div className="preview-background">{background ? background.title : "缺少背景"}</div>
+        {background ? (
+          <Image
+            fill
+            unoptimized
+            className="preview-background-image"
+            src={background.previewUrl}
+            alt={background.title}
+            sizes="(max-width: 720px) 100vw, 760px"
+          />
+        ) : (
+          <div className="preview-background">缺少背景</div>
+        )}
         <div className="preview-characters">
-          {activeCharacters.map((character) => (
-            <div className="preview-sprite" key={character.id}>
-              {character.name}
-            </div>
-          ))}
+          {activeCharacters.map((character) => {
+            const sprite = resolveCharacterSprite(character, assets);
+
+            return sprite ? (
+              <Image
+                unoptimized
+                className="preview-sprite-image"
+                src={sprite.previewUrl}
+                alt={character.name}
+                width={180}
+                height={320}
+                key={character.id}
+              />
+            ) : (
+              <div className="preview-sprite" key={character.id}>
+                {character.name}
+              </div>
+            );
+          })}
         </div>
         <div className="preview-textbox">
           <strong>{node.title}</strong>
@@ -73,6 +99,13 @@ export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerP
       <pre className="variables-preview">{JSON.stringify(state.variables, null, 2)}</pre>
     </div>
   );
+}
+
+/**
+ * Resolves the accepted default sprite for a character in the preview asset manifest.
+ */
+function resolveCharacterSprite(character: CharacterCard, assets: AssetItem[]): AssetItem | undefined {
+  return assets.find((asset) => asset.assetId === character.defaultAssetId && asset.status === "accepted");
 }
 
 /**

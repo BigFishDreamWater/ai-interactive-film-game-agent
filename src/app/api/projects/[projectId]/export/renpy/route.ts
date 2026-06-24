@@ -2,7 +2,7 @@ import AdmZip from "adm-zip";
 import { NextResponse } from "next/server";
 import { runBuildCheck } from "@/lib/build-check";
 import { getProjectSnapshot } from "@/lib/project-store";
-import { buildRenPyProjectFiles } from "@/lib/renpy-exporter";
+import { buildRenPyProjectFiles, buildRenPyProjectImageFiles } from "@/lib/renpy-exporter";
 
 interface RenPyExportRouteContext {
   params: Promise<{ projectId: string }>;
@@ -38,6 +38,7 @@ export async function POST(_request: Request, context: RenPyExportRouteContext) 
   });
 
   files.forEach((file) => zip.addFile(file.path, Buffer.from(file.content, "utf8")));
+  buildRenPyProjectImageFiles(snapshot.assets).forEach((file) => zip.addFile(file.path, file.content));
 
   return new NextResponse(zip.toBuffer(), {
     headers: {

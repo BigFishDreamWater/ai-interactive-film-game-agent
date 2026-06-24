@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 768" role="img" aria-label="Moss neutral sprite">
+  <rect width="512" height="768" fill="none"/>
+  <ellipse cx="256" cy="718" rx="150" ry="24" fill="#000" opacity=".2"/>
+  <path d="M146 725c24-190 28-305 110-305s86 115 110 305z" fill="#5a4534"/>
+  <rect x="184" y="418" width="144" height="272" rx="38" fill="#7f5f45"/>
+  <circle cx="256" cy="270" r="94" fill="#e9b690"/>
+  <path d="M168 250c18-92 84-132 150-100 28 14 43 46 40 92-57-18-119-21-190 8z" fill="#3a2a21"/>
+  <path d="M206 288h24M282 288h24" stroke="#1f2937" stroke-width="9" stroke-linecap="round"/>
+  <path d="M222 340c22 14 46 14 68 0" stroke="#874c42" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <rect x="168" y="482" width="176" height="92" rx="16" fill="#efe0c0"/>
+</svg>

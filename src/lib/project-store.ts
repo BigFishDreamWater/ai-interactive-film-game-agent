@@ -1,6 +1,6 @@
 import type { AssetItem, CharacterCard, GameDesignSpec, Project, ProjectBrief, StoryGraph } from "@/domain/types";
 import { generateCharacterCards, generateDesignSpec, generateStoryGraph } from "@/lib/agents";
-import { planProjectAssets, replaceAssetFromLibrary } from "@/lib/asset-planner";
+import { planProjectAssets, replaceAssetFromLibrary, suggestReplacementLibraryAssetId } from "@/lib/asset-planner";
 import { createProjectFromBrief } from "@/lib/project-factory";
 
 export interface ProjectSnapshot {
@@ -124,7 +124,7 @@ export function cancelProjectAsset(projectId: string, assetId: string): AssetIte
 /**
  * Replaces one project asset with metadata and file paths from a library asset.
  */
-export function replaceProjectAsset(projectId: string, assetId: string, libraryAssetId: string): AssetItem {
+export function replaceProjectAsset(projectId: string, assetId: string, libraryAssetId?: string): AssetItem {
   const snapshot = requireProject(projectId);
   const index = snapshot.assets.findIndex((asset) => asset.assetId === assetId);
 
@@ -132,7 +132,13 @@ export function replaceProjectAsset(projectId: string, assetId: string, libraryA
     throw new Error(`Project asset not found: ${assetId}`);
   }
 
-  const replacement = replaceAssetFromLibrary(snapshot.assets[index], libraryAssetId);
+  const resolvedLibraryAssetId = libraryAssetId || suggestReplacementLibraryAssetId(snapshot.assets[index]);
+
+  if (!resolvedLibraryAssetId) {
+    throw new Error(`Replacement asset not found for: ${assetId}`);
+  }
+
+  const replacement = replaceAssetFromLibrary(snapshot.assets[index], resolvedLibraryAssetId);
   snapshot.assets[index] = replacement;
   return replacement;
 }

@@ -183,6 +183,14 @@ button:hover {
   font-weight: 800;
 }
 
+.preview-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .preview-characters {
   position: absolute;
   inset: auto 0 94px;
@@ -201,6 +209,12 @@ button:hover {
   background: rgba(255, 255, 255, 0.76);
   color: #17212f;
   font-weight: 800;
+}
+
+.preview-sprite-image {
+  height: min(68vw, 320px);
+  max-width: 180px;
+  object-fit: contain;
 }
 
 .preview-textbox {
