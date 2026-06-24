@@ -1,3 +1,5 @@
+import { WorkspaceClient } from "@/app/workspace-client";
+
 /**
  * Renders the MVP landing workspace for the cinematic dialogue game creator.
  */
@@ -11,6 +13,7 @@ export default function HomePage() {
           从一句故事 brief 开始，生成剧情图、角色卡、免费授权素材计划、网页试玩和 Ren&apos;Py 导出包。
         </p>
       </section>
+      <WorkspaceClient />
     </main>
   );
 }

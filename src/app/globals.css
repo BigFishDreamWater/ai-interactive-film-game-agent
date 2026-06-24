@@ -52,6 +52,90 @@ h1 {
   line-height: 1.7;
 }
 
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+  gap: 20px;
+  max-width: 1180px;
+  margin: 48px auto 0;
+}
+
+.panel {
+  border: 1px solid #ddd7ce;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 20px;
+}
+
+.panel h2 {
+  margin: 0 0 16px;
+  color: #1f2937;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+  color: #3b4755;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #c8d0da;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #17212f;
+  font: inherit;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+button {
+  border: 0;
+  border-radius: 6px;
+  background: #1c5d99;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+button:hover {
+  background: #154a7b;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status {
+  margin: 14px 0 0;
+  color: #526171;
+}
+
+.json-preview {
+  min-height: 360px;
+  max-height: 520px;
+  overflow: auto;
+  border-radius: 6px;
+  background: #111827;
+  color: #d8dee9;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 14px;
+}
+
 @media (max-width: 720px) {
   .workspace-shell {
     padding: 28px;
@@ -63,5 +147,9 @@ h1 {
 
   h1 {
     font-size: 34px;
+  }
+
+  .workspace-grid {
+    grid-template-columns: 1fr;
   }
 }
