@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { AssetItem, CharacterCard, GameDesignSpec, Project, StoryGraph } from "@/domain/types";
 import { PreviewPlayer } from "@/app/preview-player";
+import type { BuildCheckReport } from "@/lib/build-check";
 
 interface WorkspaceSnapshot {
   project?: Project;
@@ -10,6 +11,7 @@ interface WorkspaceSnapshot {
   characters: CharacterCard[];
   storyGraph?: StoryGraph;
   assets: AssetItem[];
+  buildReport?: BuildCheckReport;
 }
 
 const initialSnapshot: WorkspaceSnapshot = {
@@ -77,6 +79,48 @@ export function WorkspaceClient() {
     }));
   }
 
+  /**
+   * Runs the server-side static build check for the current project.
+   */
+  async function runBuildCheckAction() {
+    if (!snapshot.project) {
+      setMessage("请先创建项目。");
+      return;
+    }
+
+    const response = await fetch(`/api/projects/${snapshot.project.id}/build/check`, { method: "POST" });
+    const data = (await response.json()) as { report: BuildCheckReport };
+
+    setSnapshot((current) => ({ ...current, buildReport: data.report }));
+    setMessage(data.report.ok ? "静态检查通过。" : "静态检查发现问题。");
+  }
+
+  /**
+   * Requests a Ren'Py zip export and opens it in a new browser download.
+   */
+  async function exportRenPy() {
+    if (!snapshot.project) {
+      setMessage("请先创建项目。");
+      return;
+    }
+
+    const response = await fetch(`/api/projects/${snapshot.project.id}/export/renpy`, { method: "POST" });
+
+    if (!response.ok) {
+      setMessage("导出失败，请先通过静态检查。");
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${snapshot.project.id}-renpy.zip`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setMessage("Ren'Py 导出包已生成。");
+  }
+
   return (
     <div className="workspace-grid">
       <section className="panel">
@@ -118,6 +162,12 @@ export function WorkspaceClient() {
           <button type="button" onClick={() => runGeneration<AssetItem[]>("generate/assets", "assets")}>
             Generate Assets
           </button>
+          <button type="button" onClick={runBuildCheckAction}>
+            Build Check
+          </button>
+          <button type="button" onClick={exportRenPy}>
+            Export Ren&apos;Py
+          </button>
         </div>
         <div className="asset-list">
           {snapshot.assets.map((asset) => (
@@ -137,6 +187,16 @@ export function WorkspaceClient() {
             </article>
           ))}
         </div>
+        {snapshot.buildReport ? (
+          <div className="build-report">
+            <strong>{snapshot.buildReport.ok ? "检查通过" : "检查失败"}</strong>
+            <ul>
+              {snapshot.buildReport.errors.map((error) => (
+                <li key={`${error.code}-${error.nodeId ?? ""}-${error.assetId ?? ""}`}>{error.message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <PreviewPlayer assets={snapshot.assets} characters={snapshot.characters} storyGraph={snapshot.storyGraph} />
       </section>
     </div>

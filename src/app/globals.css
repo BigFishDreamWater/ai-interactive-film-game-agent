@@ -234,6 +234,19 @@ button:hover {
   padding: 10px;
 }
 
+.build-report {
+  border-left: 4px solid #1c5d99;
+  background: #eef6ff;
+  color: #1f2937;
+  margin: 12px 0;
+  padding: 12px;
+}
+
+.build-report ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
 @media (max-width: 720px) {
   .workspace-shell {
     padding: 28px;
