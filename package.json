@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:comments": "tsx scripts/check-comments.ts",
-    "verify": "npm run lint && npm run check:comments && npm run test && npm run build"
+    "acceptance:mvp": "tsx scripts/mvp-acceptance.ts",
+    "verify": "npm run lint && npm run check:comments && npm run test && npm run acceptance:mvp && npm run build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
