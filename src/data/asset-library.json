@@ -1,0 +1,114 @@
+[
+  {
+    "assetId": "bg_cafe_rain",
+    "type": "background",
+    "status": "suggested",
+    "title": "Rainy Cafe",
+    "filePath": "library/backgrounds/cafe-rain.svg",
+    "previewUrl": "/library/backgrounds/cafe-rain.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["mystery", "cafe", "rain", "noir"]
+  },
+  {
+    "assetId": "bg_alley_night",
+    "type": "background",
+    "status": "suggested",
+    "title": "Night Alley",
+    "filePath": "library/backgrounds/alley-night.svg",
+    "previewUrl": "/library/backgrounds/alley-night.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["mystery", "alley", "night", "noir"]
+  },
+  {
+    "assetId": "bg_library_evening",
+    "type": "background",
+    "status": "suggested",
+    "title": "Evening Library",
+    "filePath": "library/backgrounds/library-evening.svg",
+    "previewUrl": "/library/backgrounds/library-evening.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["mystery", "library", "evening"]
+  },
+  {
+    "assetId": "char_lina_neutral",
+    "type": "character_sprite",
+    "status": "suggested",
+    "title": "Lina Neutral",
+    "filePath": "library/characters/lina-neutral.svg",
+    "previewUrl": "/library/characters/lina-neutral.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["detective", "neutral", "mystery"],
+    "characterId": "char_lina",
+    "expression": "neutral"
+  },
+  {
+    "assetId": "char_lina_suspicious",
+    "type": "expression",
+    "status": "suggested",
+    "title": "Lina Suspicious",
+    "filePath": "library/characters/lina-suspicious.svg",
+    "previewUrl": "/library/characters/lina-suspicious.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["detective", "suspicious", "mystery"],
+    "characterId": "char_lina",
+    "expression": "suspicious"
+  },
+  {
+    "assetId": "ui_textbox_default",
+    "type": "ui",
+    "status": "suggested",
+    "title": "Default Textbox",
+    "filePath": "library/ui/textbox.svg",
+    "previewUrl": "/library/ui/textbox.svg",
+    "source": {
+      "kind": "library",
+      "name": "MVP Built-in CC0 Pack",
+      "author": "ai-chat-reality",
+      "license": "CC0",
+      "sourceUrl": "local://mvp-built-in-pack",
+      "commercialUse": true,
+      "attributionRequired": false
+    },
+    "tags": ["ui", "textbox"]
+  }
+]
