@@ -1,0 +1,72 @@
+<h2>选择一个电影级 UI 方向</h2>
+<p class="subtitle">目标：AI 影视对话游戏制作台要更像创作控制台 + 片场监视器，而不是普通表单工具。</p>
+
+<div class="cards">
+  <div class="card" data-choice="noir-console" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0b0d10;color:#f2eee3;padding:18px;min-height:280px;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:#c8a86a;font-size:11px;letter-spacing:.14em;text-transform:uppercase;">
+        <span>Scene Forge</span><span>REC 03:18</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:16px;">
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px;">
+          <div style="height:10px;width:62%;background:#c8a86a;border-radius:20px;margin-bottom:12px;"></div>
+          <div style="height:42px;background:#151a20;border-radius:8px;margin-bottom:10px;"></div>
+          <div style="height:88px;background:#151a20;border-radius:8px;"></div>
+          <div style="display:flex;gap:8px;margin-top:14px;"><span style="height:30px;flex:1;background:#c8a86a;border-radius:6px;"></span><span style="height:30px;flex:1;background:#202935;border-radius:6px;"></span></div>
+        </div>
+        <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#18212b,#0f1116);border-radius:12px;min-height:220px;">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 15%,rgba(207,164,88,.32),transparent 28%);"></div>
+          <div style="position:absolute;left:20px;right:20px;bottom:18px;background:rgba(10,12,16,.78);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:12px;">
+            <strong>雨夜咖啡馆</strong>
+            <p style="margin:6px 0 0;color:#d8d2c6;font-size:12px;">Lina：你确定要把这条线索交给我？</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Noir Production Console</h3>
+      <p>黑金、低光、片场监视器感。最适合悬疑/电影制作工具，面试展示最有质感。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="storyboard-studio" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f3eee5;color:#2a2620;padding:18px;min-height:280px;border-radius:14px;">
+      <div style="display:flex;gap:10px;margin-bottom:14px;"><span style="height:28px;width:86px;background:#2a2620;border-radius:20px;"></span><span style="height:28px;width:86px;background:#d8b15b;border-radius:20px;"></span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="height:92px;background:#fff;border:1px solid #d6c6ab;border-radius:8px;"></div>
+        <div style="height:92px;background:#fff;border:1px solid #d6c6ab;border-radius:8px;"></div>
+        <div style="height:92px;background:#fff;border:1px solid #d6c6ab;border-radius:8px;"></div>
+      </div>
+      <div style="margin-top:14px;background:#fff;border:1px solid #d6c6ab;border-radius:10px;padding:14px;">
+        <div style="height:12px;width:40%;background:#2a2620;border-radius:20px;margin-bottom:10px;"></div>
+        <div style="height:8px;width:80%;background:#c9b999;border-radius:20px;margin-bottom:8px;"></div>
+        <div style="height:8px;width:62%;background:#c9b999;border-radius:20px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Storyboard Studio</h3>
+      <p>像分镜板和导演笔记。更明亮、亲和，但“沉浸电影感”弱一点。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="sci-fi-stage" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(135deg,#07151a,#0e1426);color:#e7fbff;padding:18px;min-height:280px;border-radius:14px;">
+      <div style="height:160px;border:1px solid rgba(68,213,255,.38);border-radius:12px;background:linear-gradient(135deg,rgba(18,80,96,.4),rgba(15,20,40,.8));position:relative;">
+        <div style="position:absolute;inset:20px;border:1px dashed rgba(68,213,255,.35);border-radius:8px;"></div>
+        <div style="position:absolute;right:18px;top:18px;color:#44d5ff;font-size:11px;">LIVE AGENT</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+        <div style="height:70px;background:rgba(255,255,255,.06);border:1px solid rgba(68,213,255,.24);border-radius:8px;"></div>
+        <div style="height:70px;background:rgba(255,255,255,.06);border:1px solid rgba(68,213,255,.24);border-radius:8px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Sci-Fi Stage Control</h3>
+      <p>偏未来感和智能体控制台。科技感强，但可能偏离“影视对话游戏”的情绪。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="subtitle">我的推荐是 A：黑金低光 + 片场监视器。它能同时服务“AI 创作工具”和“可玩视觉小说”的双重身份。</p>
+</div>
