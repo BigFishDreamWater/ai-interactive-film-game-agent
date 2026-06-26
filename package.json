@@ -15,11 +15,13 @@
     "verify": "npm run lint && npm run check:comments && npm run test && npm run acceptance:mvp && npm run build"
   },
   "dependencies": {
+    "@earendil-works/pi-agent-core": "^0.80.2",
     "@vitejs/plugin-react": "^5.0.0",
     "adm-zip": "^0.5.16",
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "typebox": "^1.1.38",
     "uuid": "^13.0.0",
     "zod": "^4.0.0"
   },

@@ -20,6 +20,8 @@ describe("build check", () => {
 
     expect(report.ok).toBe(true);
     expect(report.errors).toHaveLength(0);
+    expect(report.renpyLint?.ok).toBe(true);
+    expect(report.renpyLint?.mode).toBe("static");
   });
 
   it("reports cancelled required assets with scene context", () => {

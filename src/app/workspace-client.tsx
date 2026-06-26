@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 import type { AssetItem, CharacterCard, GameDesignSpec, Project, StoryGraph } from "@/domain/types";
+import { AssetReplacementSelect } from "@/app/asset-replacement-select";
 import { PreviewPlayer } from "@/app/preview-player";
+import { StoryGraphPanel } from "@/app/story-graph-panel";
 import type { BuildCheckReport } from "@/lib/build-check";
+import type { AgentPlan } from "@/lib/deepseek-planner";
+import type { PiAgentTraceEvent } from "@/lib/pi-agent-orchestrator";
+import type { StoryAgentResult } from "@/lib/story-agent";
 
 interface WorkspaceSnapshot {
   project?: Project;
@@ -12,6 +18,21 @@ interface WorkspaceSnapshot {
   storyGraph?: StoryGraph;
   assets: AssetItem[];
   buildReport?: BuildCheckReport;
+  plannerTrace?: AgentPlan;
+  agentTrace?: PiAgentTraceEvent[];
+  storyAgent?: StoryAgentResult;
+}
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface ChatRouteResponse {
+  reply: string;
+  action: { type: string; assetId?: string; libraryAssetId?: string };
+  snapshot: Omit<WorkspaceSnapshot, "buildReport">;
+  buildReport?: BuildCheckReport;
 }
 
 const initialSnapshot: WorkspaceSnapshot = {
@@ -19,8 +40,23 @@ const initialSnapshot: WorkspaceSnapshot = {
   assets: []
 };
 
+const demoBriefs = {
+  a: {
+    title: "雨夜咖啡馆",
+    genre: "mystery",
+    style: "cinematic noir anime",
+    brief: "玩家是实习记者，在雨夜咖啡馆和一名女侦探对话，找出受害者最后见过的人。"
+  },
+  b: {
+    title: "记忆回廊学院",
+    genre: "academy fantasy mystery",
+    style: "cinematic magical realism",
+    brief: "学生会档案室每晚都会重排记忆照片，玩家要和一名沉默的管理员对话，找回失踪同学最后留下的声音。"
+  }
+};
+
 /**
- * Renders the browser-based MVP workspace for project creation and generation.
+ * Renders the browser-based MVP workspace for project creation, chat-driven design, and generation.
  */
 export function WorkspaceClient() {
   const [snapshot, setSnapshot] = useState<WorkspaceSnapshot>(initialSnapshot);
@@ -29,6 +65,25 @@ export function WorkspaceClient() {
   const [style, setStyle] = useState("cinematic noir anime");
   const [brief, setBrief] = useState("玩家是实习记者，在雨夜咖啡馆和一名女侦探对话，找出受害者最后见过的人。");
   const [message, setMessage] = useState("输入 brief 后创建项目。");
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
+  const [briefExpanded, setBriefExpanded] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Fills the project brief form with a demo scenario without calling the backend.
+   */
+  function fillDemoBrief(kind: keyof typeof demoBriefs) {
+    const demo = demoBriefs[kind];
+
+    setTitle(demo.title);
+    setGenre(demo.genre);
+    setStyle(demo.style);
+    setBrief(demo.brief);
+    setMessage("Demo brief loaded. You can edit it before creating the project.");
+  }
 
   /**
    * Creates a project through the API and stores the returned snapshot seed.
@@ -43,6 +98,12 @@ export function WorkspaceClient() {
 
     setSnapshot({ project: data.project, characters: [], assets: [] });
     setMessage("项目已创建，可以生成设计规格。");
+    setChatMessages([
+      {
+        role: "assistant",
+        content: `项目「${data.project.title}」已创建。你可以让我生成剧情图、角色卡或素材，也可以描述想要的调整。`
+      }
+    ]);
   }
 
   /**
@@ -63,16 +124,32 @@ export function WorkspaceClient() {
   }
 
   /**
+   * Runs the Pi Agent Core workflow that generates every playable project artifact in one pass.
+   */
+  async function runPiAgentWorkflow() {
+    if (!snapshot.project) {
+      setMessage("请先创建项目。");
+      return;
+    }
+
+    const response = await fetch(`/api/projects/${snapshot.project.id}/generate/all`, { method: "POST" });
+    const data = (await response.json()) as { snapshot: WorkspaceSnapshot };
+
+    setSnapshot(data.snapshot);
+    setMessage("Pi Agent workflow 生成完成，可以直接网页试玩。");
+  }
+
+  /**
    * Runs an asset action endpoint and updates the local asset manifest.
    */
-  async function updateAsset(assetId: string, action: "accept" | "cancel" | "replace") {
+  async function updateAsset(assetId: string, action: "accept" | "cancel" | "replace", libraryAssetId?: string) {
     if (!snapshot.project) {
       return;
     }
 
     const requestInit: RequestInit =
       action === "replace"
-        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }
+        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ libraryAssetId }) }
         : { method: "POST" };
     const response = await fetch(`/api/projects/${snapshot.project.id}/assets/${assetId}/${action}`, requestInit);
     const data = (await response.json()) as { asset: AssetItem };
@@ -125,35 +202,186 @@ export function WorkspaceClient() {
     setMessage("Ren'Py 导出包已生成。");
   }
 
+  /**
+   * Builds a compact context summary for the chat agent from the current snapshot.
+   */
+  function buildChatSummary() {
+    return {
+      hasDesign: Boolean(snapshot.design),
+      sceneCount: snapshot.design?.sceneCount ?? 0,
+      characterCount: snapshot.characters.length,
+      hasStory: Boolean(snapshot.storyGraph),
+      nodeCount: snapshot.storyGraph?.nodes.length ?? 0,
+      assets: snapshot.assets.map((asset) => ({
+        assetId: asset.assetId,
+        title: asset.title,
+        type: asset.type,
+        status: asset.status
+      })),
+      ...(snapshot.buildReport ? { buildOk: snapshot.buildReport.ok } : {})
+    };
+  }
+
+  /**
+   * Sends a chat message to the design agent and applies the returned action.
+   */
+  async function handleChatSend() {
+    const text = chatInput.trim();
+
+    if (!text || !snapshot.project || isThinking) {
+      return;
+    }
+
+    const history = chatMessages.slice(-6);
+
+    setChatMessages((current) => [...current, { role: "user", content: text }]);
+    setChatInput("");
+    setIsThinking(true);
+
+    try {
+      const response = await fetch(`/api/projects/${snapshot.project.id}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, summary: buildChatSummary(), history })
+      });
+      const data = (await response.json()) as ChatRouteResponse;
+
+      setChatMessages((current) => [...current, { role: "assistant", content: data.reply }]);
+      setSnapshot((current) => ({
+        ...data.snapshot,
+        ...(data.buildReport ? { buildReport: data.buildReport } : { buildReport: current.buildReport })
+      }));
+      setMessage(data.action.type === "none" ? "对话完成。" : `已执行：${data.action.type}`);
+    } catch {
+      setChatMessages((current) => [
+        ...current,
+        { role: "assistant", content: "抱歉，出了点问题，请重试。" }
+      ]);
+    } finally {
+      setIsThinking(false);
+      requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }));
+    }
+  }
+
+  /**
+   * Handles Enter key (without Shift) to send the chat message.
+   */
+  function handleChatKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleChatSend();
+    }
+  }
+
   return (
-    <div className="workspace-grid">
-      <section className="panel">
-        <h2>Project Brief</h2>
-        <label>
-          标题
-          <input value={title} onChange={(event) => setTitle(event.target.value)} />
-        </label>
-        <label>
-          题材
-          <input value={genre} onChange={(event) => setGenre(event.target.value)} />
-        </label>
-        <label>
-          风格
-          <input value={style} onChange={(event) => setStyle(event.target.value)} />
-        </label>
-        <label>
-          故事 brief
-          <textarea value={brief} onChange={(event) => setBrief(event.target.value)} />
-        </label>
-        <button type="button" onClick={handleCreateProject}>
-          Create Project
+    <div className="workspace-grid production-console-grid">
+      <section className="console-panel brief-console chat-panel" aria-label="Design Chat">
+        <div className="panel-heading">
+          <p className="eyebrow">Design Chat</p>
+          <h2>对话式设计台</h2>
+        </div>
+
+        <button
+          type="button"
+          className="chat-section-toggle"
+          aria-expanded={briefExpanded}
+          onClick={() => setBriefExpanded((current) => !current)}
+        >
+          <span>项目 Brief</span>
+          <span className="chevron">▾</span>
         </button>
+
+        {briefExpanded ? (
+          <div className="brief-collapsible">
+            <div className="button-row demo-switcher">
+              <button type="button" onClick={() => fillDemoBrief("a")}>
+                Demo A
+              </button>
+              <button type="button" onClick={() => fillDemoBrief("b")}>
+                Demo B
+              </button>
+            </div>
+            <label>
+              标题
+              <input value={title} onChange={(event) => setTitle(event.target.value)} />
+            </label>
+            <label>
+              题材
+              <input value={genre} onChange={(event) => setGenre(event.target.value)} />
+            </label>
+            <label>
+              风格
+              <input value={style} onChange={(event) => setStyle(event.target.value)} />
+            </label>
+            <label>
+              故事 brief
+              <textarea value={brief} onChange={(event) => setBrief(event.target.value)} />
+            </label>
+            <button className="primary-action" type="button" onClick={handleCreateProject}>
+              Create Project
+            </button>
+          </div>
+        ) : null}
+
+        <div className="chat-divider" />
+
+        <div className="chat-messages">
+          {chatMessages.length === 0 ? (
+            <div className="chat-empty">
+              {snapshot.project
+                ? "和设计 agent 对话，调整剧情、角色或素材。"
+                : "先创建项目，然后开始对话设计。"}
+            </div>
+          ) : null}
+          {chatMessages.map((entry, index) => (
+            <div key={index} className={`chat-message chat-message-${entry.role}`}>
+              <div className="chat-bubble">{entry.content}</div>
+              <span className="chat-meta">{entry.role === "user" ? "你" : "Agent"}</span>
+            </div>
+          ))}
+          {isThinking ? (
+            <div className="chat-typing">
+              <span className="chat-typing-dot" />
+              <span className="chat-typing-dot" />
+              <span className="chat-typing-dot" />
+            </div>
+          ) : null}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="chat-input-row">
+          <textarea
+            className="chat-input"
+            value={chatInput}
+            onChange={(event) => setChatInput(event.target.value)}
+            onKeyDown={handleChatKeyDown}
+            placeholder={snapshot.project ? "描述你想要的调整…" : "请先创建项目…"}
+            rows={1}
+            disabled={!snapshot.project || isThinking}
+          />
+          <button
+            type="button"
+            className="chat-send"
+            onClick={handleChatSend}
+            disabled={!snapshot.project || isThinking || chatInput.trim() === ""}
+          >
+            发送
+          </button>
+        </div>
+
         <p className="status">{message}</p>
       </section>
 
-      <section className="panel">
-        <h2>Agent 生成</h2>
-        <div className="button-row">
+      <div className="monitor-column">
+        <PreviewPlayer assets={snapshot.assets} characters={snapshot.characters} storyGraph={snapshot.storyGraph} />
+      </div>
+
+      <section className="console-panel production-stack" aria-label="Production Stack">
+        <div className="panel-heading">
+          <p className="eyebrow">Inspector</p>
+          <h2>Agent 生成</h2>
+        </div>
+        <div className="button-row workflow-actions">
           <button type="button" onClick={() => runGeneration<GameDesignSpec>("generate/design", "design")}>
             Generate Design
           </button>
@@ -166,14 +394,64 @@ export function WorkspaceClient() {
           <button type="button" onClick={() => runGeneration<AssetItem[]>("generate/assets", "assets")}>
             Generate Assets
           </button>
+          <button className="primary-action" type="button" onClick={runPiAgentWorkflow}>
+            Run Pi Agent
+          </button>
           <button type="button" onClick={runBuildCheckAction}>
             Build Check
           </button>
           <button type="button" onClick={exportRenPy}>
             Export Ren&apos;Py
           </button>
+          {snapshot.project && snapshot.storyGraph ? (
+            <Link className="secondary-link play-link" href={`/play/${snapshot.project.id}`}>
+              Play in Browser
+            </Link>
+          ) : null}
         </div>
-        <div className="asset-list">
+        {snapshot.agentTrace?.length ? (
+          <p className="agent-trace">Pi trace: {snapshot.agentTrace.map((event) => event.toolName).join(" -> ")}</p>
+        ) : null}
+        {snapshot.plannerTrace ? (
+          <div className="planner-trace">
+            <strong>{`Planner: ${snapshot.plannerTrace.provider} / ${snapshot.plannerTrace.model}`}</strong>
+            <p>{snapshot.plannerTrace.rationale}</p>
+          </div>
+        ) : null}
+        {snapshot.storyAgent ? (
+          <div className="story-agent-trace">
+            <strong>{`Story agents: ${snapshot.storyAgent.provider} · ${snapshot.storyAgent.iterations} revision pass(es)`}</strong>
+            <p className="agent-trace">
+              {snapshot.storyAgent.events.map((event) => `${event.role}(${event.provider}/${event.status})`).join(" -> ")}
+            </p>
+            {snapshot.storyAgent.critique ? <p>{snapshot.storyAgent.critique.summary}</p> : null}
+            {snapshot.storyAgent.critique?.issues.length ? (
+              <ul>
+                {snapshot.storyAgent.critique.issues.map((issue, index) => (
+                  <li key={`${issue.severity}-${issue.category}-${index}`}>{`[${issue.severity}/${issue.category}] ${issue.message}`}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
+        {snapshot.buildReport ? (
+          <div className="build-report">
+            <strong>{snapshot.buildReport.ok ? "检查通过" : "检查失败"}</strong>
+            {snapshot.buildReport.renpyLint ? (
+              <p>{`Ren'Py ${snapshot.buildReport.renpyLint.mode} lint: ${
+                snapshot.buildReport.renpyLint.ok ? "passed" : "failed"
+              }`}</p>
+            ) : null}
+            <ul>
+              {snapshot.buildReport.errors.map((error) => (
+                <li key={`${error.code}-${error.nodeId ?? ""}-${error.assetId ?? ""}`}>{error.message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        <StoryGraphPanel storyGraph={snapshot.storyGraph} />
+        <div className="asset-list" aria-label="Asset Queue">
+          {snapshot.assets.length === 0 ? <p className="muted">No assets staged yet.</p> : null}
           {snapshot.assets.map((asset) => (
             <article className="asset-card" key={asset.assetId}>
               <strong>{asset.title}</strong>
@@ -187,24 +465,14 @@ export function WorkspaceClient() {
                 <button type="button" onClick={() => updateAsset(asset.assetId, "cancel")}>
                   Cancel
                 </button>
-                <button type="button" onClick={() => updateAsset(asset.assetId, "replace")}>
-                  Replace
-                </button>
               </div>
+              <AssetReplacementSelect
+                asset={asset}
+                onReplace={(assetId, libraryAssetId) => updateAsset(assetId, "replace", libraryAssetId)}
+              />
             </article>
           ))}
         </div>
-        {snapshot.buildReport ? (
-          <div className="build-report">
-            <strong>{snapshot.buildReport.ok ? "检查通过" : "检查失败"}</strong>
-            <ul>
-              {snapshot.buildReport.errors.map((error) => (
-                <li key={`${error.code}-${error.nodeId ?? ""}-${error.assetId ?? ""}`}>{error.message}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        <PreviewPlayer assets={snapshot.assets} characters={snapshot.characters} storyGraph={snapshot.storyGraph} />
       </section>
     </div>
   );

@@ -3,6 +3,10 @@ node_modules/
 storage/
 exports/
 coverage/
+.worktrees/
+.superpowers/
 *.tsbuildinfo
 .env
 .env.local
+*.log
+*.log
