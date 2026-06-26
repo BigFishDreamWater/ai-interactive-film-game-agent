@@ -17,7 +17,7 @@ interface PreviewSession {
 }
 
 /**
- * Renders a lightweight visual novel preview from the current story graph.
+ * Renders a Cineverse-styled visual novel preview with dark atmospheric staging.
  */
 export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerProps) {
   const graphKey = useMemo(() => (storyGraph ? createGraphKey(storyGraph) : undefined), [storyGraph]);
@@ -40,7 +40,12 @@ export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerP
           </div>
           <span className="monitor-light">IDLE</span>
         </div>
-        <div className="preview-empty">生成剧情图后可以在这里试玩。</div>
+        <div className="preview-empty">
+          <button type="button" className="play-button-circle" aria-label="Generate scene preview">
+            ▶
+          </button>
+          <p className="preview-hint-text">生成场景中的对话流程图…</p>
+        </div>
       </section>
     );
   }

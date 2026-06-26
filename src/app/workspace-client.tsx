@@ -56,7 +56,7 @@ const demoBriefs = {
 };
 
 /**
- * Renders the browser-based MVP workspace for project creation, chat-driven design, and generation.
+ * Renders the Cineverse-themed workspace with a three-column layout, tab navigation, and status bar.
  */
 export function WorkspaceClient() {
   const [snapshot, setSnapshot] = useState<WorkspaceSnapshot>(initialSnapshot);
@@ -70,6 +70,7 @@ export function WorkspaceClient() {
   const [chatInput, setChatInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [briefExpanded, setBriefExpanded] = useState(true);
+  const [activeTab, setActiveTab] = useState<"view" | "design" | "demo">("design");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -275,10 +276,64 @@ export function WorkspaceClient() {
 
   return (
     <div className="workspace-grid production-console-grid">
+      {/* ═══ Left panel: 场景设置 ═══ */}
       <section className="console-panel brief-console chat-panel" aria-label="Design Chat">
         <div className="panel-heading">
-          <p className="eyebrow">Design Chat</p>
-          <h2>对话式设计台</h2>
+          <h2>场景设置</h2>
+          <p className="panel-subheader">配置项目参数与对话设计</p>
+        </div>
+
+        <div className="panel-tabs">
+          <button
+            type="button"
+            className={`panel-tab${activeTab === "view" ? " panel-tab-active" : ""}`}
+            onClick={() => setActiveTab("view")}
+          >
+            View
+          </button>
+          <button
+            type="button"
+            className={`panel-tab${activeTab === "design" ? " panel-tab-active" : ""}`}
+            onClick={() => setActiveTab("design")}
+          >
+            Design
+          </button>
+          <button
+            type="button"
+            className={`panel-tab${activeTab === "demo" ? " panel-tab-active" : ""}`}
+            onClick={() => setActiveTab("demo")}
+          >
+            Demo 2
+          </button>
+        </div>
+
+        <div className="toggle-row">
+          <span className="toggle-label">Show all</span>
+          <label className="toggle-switch">
+            <input type="checkbox" defaultChecked readOnly />
+            <span className="toggle-track" />
+          </label>
+        </div>
+
+        <div className="toggle-row">
+          <span className="toggle-label">Show only active</span>
+          <label className="toggle-switch">
+            <input type="checkbox" readOnly />
+            <span className="toggle-track" />
+          </label>
+        </div>
+
+        <div className="slider-row">
+          <label htmlFor="opacity-slider">Opacity</label>
+          <input id="opacity-slider" type="range" min="0" max="100" defaultValue="80" />
+        </div>
+
+        <div className="toggle-row">
+          <span className="toggle-label">automatically wait scene</span>
+          <label className="toggle-switch">
+            <input type="checkbox" defaultChecked readOnly />
+            <span className="toggle-track" />
+          </label>
         </div>
 
         <button
@@ -317,11 +372,12 @@ export function WorkspaceClient() {
               故事 brief
               <textarea value={brief} onChange={(event) => setBrief(event.target.value)} />
             </label>
-            <button className="primary-action" type="button" onClick={handleCreateProject}>
-              Create Project
-            </button>
           </div>
         ) : null}
+
+        <button className="primary-action" type="button" onClick={handleCreateProject}>
+          Create Project
+        </button>
 
         <div className="chat-divider" />
 
@@ -372,15 +428,39 @@ export function WorkspaceClient() {
         <p className="status">{message}</p>
       </section>
 
-      <div className="monitor-column">
+      {/* ═══ Center: Preview stage ═══ */}
+      <div className="monitor-column center-preview-wrapper">
         <PreviewPlayer assets={snapshot.assets} characters={snapshot.characters} storyGraph={snapshot.storyGraph} />
+        <div className="character-strip">
+          {snapshot.characters.length === 0 ? (
+            <div className="character-thumb">No characters</div>
+          ) : (
+            snapshot.characters.map((character) => {
+              const sprite = snapshot.assets.find(
+                (a) => a.assetId === character.defaultAssetId && a.status === "accepted"
+              );
+              return (
+                <div className="character-thumb" key={character.id}>
+                  {sprite ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="character-thumb-image" src={sprite.previewUrl} alt={character.name} />
+                  ) : (
+                    character.name
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
+      {/* ═══ Right panel: Agent 管理 ═══ */}
       <section className="console-panel production-stack" aria-label="Production Stack">
         <div className="panel-heading">
-          <p className="eyebrow">Inspector</p>
-          <h2>Agent 生成</h2>
+          <h2>Agent 管理</h2>
+          <p className="panel-subheader">生成引擎与素材管理</p>
         </div>
+
         <div className="button-row workflow-actions">
           <button type="button" onClick={() => runGeneration<GameDesignSpec>("generate/design", "design")}>
             Generate Design
@@ -409,6 +489,7 @@ export function WorkspaceClient() {
             </Link>
           ) : null}
         </div>
+
         {snapshot.agentTrace?.length ? (
           <p className="agent-trace">Pi trace: {snapshot.agentTrace.map((event) => event.toolName).join(" -> ")}</p>
         ) : null}
@@ -449,7 +530,9 @@ export function WorkspaceClient() {
             </ul>
           </div>
         ) : null}
+
         <StoryGraphPanel storyGraph={snapshot.storyGraph} />
+
         <div className="asset-list" aria-label="Asset Queue">
           {snapshot.assets.length === 0 ? <p className="muted">No assets staged yet.</p> : null}
           {snapshot.assets.map((asset) => (
