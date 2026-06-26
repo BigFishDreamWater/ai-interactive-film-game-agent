@@ -1,8 +1,11 @@
-import type { AssetItem, CharacterCard, StoryGraph } from "@/domain/types";
+import type { AssetItem, CharacterCard, Project, StoryGraph } from "@/domain/types";
 import { existsSync } from "node:fs";
 import { join, normalize } from "node:path";
+import { buildRenPyProjectFiles } from "@/lib/renpy-exporter";
+import { runRenPyStaticLint, type RenPyLintReport } from "@/lib/renpy-lint";
 
 export interface BuildCheckInput {
+  project?: Project;
   storyGraph?: StoryGraph;
   characters: CharacterCard[];
   assets: AssetItem[];
@@ -18,6 +21,7 @@ export interface BuildCheckError {
 export interface BuildCheckReport {
   ok: boolean;
   errors: BuildCheckError[];
+  renpyLint?: RenPyLintReport;
 }
 
 /**
@@ -25,6 +29,7 @@ export interface BuildCheckReport {
  */
 export function runBuildCheck(input: BuildCheckInput): BuildCheckReport {
   const errors: BuildCheckError[] = [];
+  let renpyLint: RenPyLintReport | undefined;
 
   if (!input.storyGraph) {
     errors.push({ code: "missing_story", message: "Story graph has not been generated." });
@@ -103,7 +108,33 @@ export function runBuildCheck(input: BuildCheckInput): BuildCheckReport {
       }
     });
 
-  return { ok: errors.length === 0, errors };
+  if (input.storyGraph) {
+    renpyLint = runRenPyStaticLint(
+      buildRenPyProjectFiles({
+        project: input.project ?? createStaticLintProject(),
+        storyGraph: input.storyGraph,
+        characters: input.characters,
+        assets: input.assets
+      })
+    );
+  }
+
+  return { ok: errors.length === 0 && (renpyLint?.ok ?? true), errors, renpyLint };
+}
+
+/**
+ * Creates a stable placeholder project for Ren'Py static lint when callers do not provide one.
+ */
+function createStaticLintProject(): Project {
+  return {
+    id: "static_lint_project",
+    title: "Ren'Py Static Check",
+    genre: "mystery",
+    style: "noir",
+    brief: "Generated static check project.",
+    status: "draft",
+    createdAt: "2026-06-25T00:00:00.000Z"
+  };
 }
 
 /**

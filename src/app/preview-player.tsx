@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { AssetItem, CharacterCard, StoryGraph } from "@/domain/types";
-import { applyChoice, createPreviewState, getCurrentNode } from "@/lib/preview-runtime";
+import { applyChoice, createPreviewState, getCurrentNode, type PreviewState } from "@/lib/preview-runtime";
 
 interface PreviewPlayerProps {
   assets: AssetItem[];
@@ -11,15 +11,38 @@ interface PreviewPlayerProps {
   storyGraph?: StoryGraph;
 }
 
+interface PreviewSession {
+  graphKey: string;
+  state: PreviewState;
+}
+
 /**
  * Renders a lightweight visual novel preview from the current story graph.
  */
 export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerProps) {
-  const initialState = useMemo(() => (storyGraph ? createPreviewState(storyGraph) : undefined), [storyGraph]);
-  const [state, setState] = useState(initialState);
+  const graphKey = useMemo(() => (storyGraph ? createGraphKey(storyGraph) : undefined), [storyGraph]);
+  const [session, setSession] = useState<PreviewSession>();
+  const state = useMemo(() => {
+    if (!storyGraph || !graphKey) {
+      return undefined;
+    }
 
-  if (!storyGraph || !state) {
-    return <div className="preview-empty">生成剧情图后可以在这里试玩。</div>;
+    return session?.graphKey === graphKey ? session.state : createPreviewState(storyGraph);
+  }, [graphKey, session, storyGraph]);
+
+  if (!storyGraph || !state || !graphKey) {
+    return (
+      <section className="preview-player film-monitor" aria-label="Scene Monitor">
+        <div className="monitor-chrome">
+          <div>
+            <p className="monitor-kicker">Scene Monitor</p>
+            <strong>Waiting for scene graph</strong>
+          </div>
+          <span className="monitor-light">IDLE</span>
+        </div>
+        <div className="preview-empty">生成剧情图后可以在这里试玩。</div>
+      </section>
+    );
   }
 
   const node = getCurrentNode(storyGraph, state);
@@ -30,15 +53,22 @@ export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerP
    * Applies a selected preview choice and advances the local preview state.
    */
   function choose(choiceId: string) {
-    if (!storyGraph || !state) {
+    if (!storyGraph || !state || !graphKey) {
       return;
     }
 
-    setState(applyChoice(storyGraph, state, choiceId));
+    setSession({ graphKey, state: applyChoice(storyGraph, state, choiceId) });
   }
 
   return (
-    <div className="preview-player">
+    <section className="preview-player film-monitor" aria-label="Scene Monitor">
+      <div className="monitor-chrome">
+        <div>
+          <p className="monitor-kicker">Scene Monitor</p>
+          <strong>{node.title}</strong>
+        </div>
+        <span className="monitor-light monitor-live">LIVE</span>
+      </div>
       <div className="preview-stage">
         {background ? (
           <Image
@@ -83,9 +113,9 @@ export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerP
           ))}
         </div>
       </div>
-      <div className="choice-list">
+      <div className="choice-list" aria-label="Scene choices">
         {node.choices.length === 0 ? (
-          <button type="button" onClick={() => setState(createPreviewState(storyGraph))}>
+          <button type="button" onClick={() => setSession({ graphKey, state: createPreviewState(storyGraph) })}>
             重新开始
           </button>
         ) : (
@@ -96,9 +126,18 @@ export function PreviewPlayer({ assets, characters, storyGraph }: PreviewPlayerP
           ))
         )}
       </div>
-      <pre className="variables-preview">{JSON.stringify(state.variables, null, 2)}</pre>
-    </div>
+      <pre className="variables-preview" aria-label="Preview variables">
+        {JSON.stringify(state.variables, null, 2)}
+      </pre>
+    </section>
   );
+}
+
+/**
+ * Builds a stable preview session key for resetting local progress when the generated graph changes.
+ */
+function createGraphKey(storyGraph: StoryGraph): string {
+  return [storyGraph.projectId, storyGraph.startNodeId, storyGraph.nodes.map((node) => node.id).join("|")].join(":");
 }
 
 /**
