@@ -4,6 +4,8 @@ AI Chat Reality 是一个面向“AI 影视对话游戏制作”的 MVP。当前
 
 第一屏现在就是可操作的 Noir Production Console：左侧填写 brief，中间是电影监视器式网页试玩，右侧是 Pi Agent 生成、Story Graph、素材队列和构建检查。
 
+![alt text](image.png)
+
 ## 当前能力
 
 - Project Brief：创建项目并保存 title、genre、style、brief。
